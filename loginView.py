@@ -3,6 +3,19 @@ from tkinter import *
 #Button Function
 #-------------------------------------------
 def LogInFunc():
+
+    #get the string from the entry field
+    userName = usernameTF.get()
+    passWord = passwordTF.get()
+
+    print("Username: " + userName + "\nPassword: " + passWord)
+
+    #clear the entry fields 
+    usernameTF.delete(0, END)
+    passwordTF.delete(0, END)
+
+    #Below: the functionality of the button should be entered here
+    #Such as the query
     print("This will login eventually")
 
 
@@ -16,23 +29,20 @@ window.geometry("400x400")
 #-------------------------------------------
 
 #Creation of the available fields
-L1 = Label(window, text = "Username: ")
-E1 = Entry(window, bd = 5)
-L2 = Label(window, text = "Password: ")
-E2 = Entry(window, bd = 5)
+userLabel = Label(window, text = "Username: ")
+usernameTF = Entry(window, bd = 5)
+passwordLabel = Label(window, text = "Password: ")
+passwordTF = Entry(window, bd = 5)
 LogIn = Button(window, text = "Log In", command = LogInFunc)
 
 
 #Placing the fields in the window
-L1.grid(row=0, column=0)
-E1.grid(row=0, column=1)
-L2.grid(row = 1, column = 0)
-E2.grid(row = 1, column = 1)
+#------------------------------------------
+userLabel.grid(row=0, column=0)
+usernameTF.grid(row=0, column=1)
+passwordLabel.grid(row = 1, column = 0)
+passwordTF.grid(row = 1, column = 1)
 LogIn.grid(row = 2, column = 1)
-
-
-
-
 
 
 
