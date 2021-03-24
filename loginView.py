@@ -1,4 +1,6 @@
 from tkinter import *
+import mysql.connector
+from mysql.connector import Error
 
 
 class App(Tk):
@@ -65,11 +67,9 @@ class LogInPage(Frame):
         #Below: the functionality of the button should be entered here
         #Such as the query
         
-        print("This will login eventually")
+        if connect(userName, passWord):
+            self.controller.show_frame("Dashboard")
 
-        #How to switch frames
-        self.controller.show_frame("Dashboard")
-        
 
 #This is the new generic frame
 class Dashboard(Frame):
@@ -81,7 +81,41 @@ class Dashboard(Frame):
         label.pack(side = "top", fill = "x", pady=10)
 
 
+def connect(userName, passWord):
+    """ Connect to mySQL database """
+    try:
+        '''
+            username is always root
+            password is Y7uzourl
+            host name is either the server name or the ip address where mysql is running
+            database name is film_review_db'
+        '''
+        conn = mysql.connector.connect(host='puff.mnstate.edu',
+                                       database='aries-qualey_film_review',
+                                       user='aries-qualey',
+                                       password='Y7uzourl')
+
+        if conn.is_connected():
+            logincursor = conn.cursor()
+            logincursor.execute("SELECT EXISTS (SELECT * FROM login_table WHERE username_c = %s AND password_c = %s)", (userName, passWord,))
+            result = logincursor.fetchone()
+
+            if result[0] == 1:
+                print ("Login successful!")
+                return True
+            else:
+                print ("Username or password incorrect. Please try again.")
+                return False
+
+    except Error as e:
+        print(e)
+
+    finally:
+        if conn is not None and conn.is_connected():
+            conn.close()
+
 
 if __name__ == "__main__":
     app = App()
+    app.geometry('600x400')
     app.mainloop()
