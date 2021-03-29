@@ -15,7 +15,7 @@ class App(Tk):
 
         #the frames are stored here
         self.frames = {}
-        for F in (LogInPage, Dashboard):
+        for F in (LogInPage, JurorDash, JuryChairDash, CommitteeChairDash, GuestView):
             page_name = F.__name__
             frame = F(parent = container, controller = self)
             self.frames[page_name] = frame
@@ -45,6 +45,7 @@ class LogInPage(Frame):
         self.passwordTF = Entry(self, bd = 5)
 
         LogIn = Button(self, text = "Log In", command = self.LogInFunc)
+        Guest = Button(self, text = "Guest", command = self.Guest)
         
         #Layout of the available fields
         userLabel.grid(row=0, column=0)
@@ -52,6 +53,7 @@ class LogInPage(Frame):
         passwordLabel.grid(row = 1, column = 0)
         self.passwordTF.grid(row = 1, column = 1)
         LogIn.grid(row = 2, column = 1)
+        Guest.grid(row = 2, column = 0)
 
     
         #Button Function
@@ -68,17 +70,49 @@ class LogInPage(Frame):
         #Such as the query
         
         if connect(userName, passWord):
-            self.controller.show_frame("Dashboard")
+            self.controller.show_frame("JurorDash")
+
+    def Guest(self):
+
+        #change frame for the guest film submission page
+        self.controller.show_frame("GuestView")
 
 
-#This is the new generic frame
-class Dashboard(Frame):
+#This is the new generic frame for jurors
+class JurorDash(Frame):
 
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
         label = Label(self, text = "This will be the view on login")
         label.pack(side = "top", fill = "x", pady=10)
+
+#This is the new generic frame for jury chair
+class JuryChairDash(Frame):
+
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        self.controller = controller
+        label = Label(self, text = "This will be the view on login")
+        label.pack(side = "top", fill = "x", pady=10)
+
+#This is the new generic frame for committee chair
+class CommitteeChairDash(Frame):
+
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        self.controller = controller
+        label = Label(self, text = "This will be the view on login")
+        label.pack(side = "top", fill = "x", pady=10)
+
+
+class GuestView(Frame):
+
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        self.controller = controller
+        label = Label(self, text = "This will be the guest submission form")
+        label.pack(side = "top", fill = "x", pady = 10)
 
 
 def connect(userName, passWord):
