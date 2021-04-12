@@ -111,8 +111,76 @@ class GuestView(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
-        label = Label(self, text = "This will be the guest submission form")
-        label.pack(side = "top", fill = "x", pady = 10)
+
+        # Creation of the available fields
+        # Film information
+        title = Label(self, text = "Title of Film")
+        self.titleTF = Entry(self, bd = 5)
+        director = Label(self, text = "Director of Film")
+        self.directorTF = Entry(self, bd = 5)
+        submitterName = Label(self, text = "Name of Submitter")
+        self.submitterNameTF = Entry(self, bd = 5)
+        submitterPhone = Label(self, text = "Phone Number")
+        self.submitterPhoneTF = Entry(self, bd = 5)
+        synopsis = Label(self, text = "Synopsis")
+        self.synopsisTF = Entry(self, bd = 5)
+        runtime = Label(self, text = "Total Runtime")
+        self.runtimeTF = Entry(self, bd = 5)
+        self.runtimeTF.insert(0, "In Minutes")
+        language = Label(self, text = "Language")
+        self.languageTF = Entry(self, bd = 5)
+        subtitles = Label(self, text = "Subtitles")
+        self.subtitleTF = Entry(self, bd = 5)
+        location = Label(self, text = "How to access film")
+        self.locationTF = Entry(self, bd = 5)
+        genre = Label(self, text = "Genre")
+        self.genreTF = Entry(self, bd = 5)
+
+        #Creation of Buttons
+        submit = Button(self, text = "Submit", command = self.submitApp)
+        cancel = Button(self, text = "Cancel", command = self.cancelApp)
+
+
+        #Layout of available fields
+        title.grid(row = 1, column = 0)
+        self.titleTF.grid(row = 1, column = 1)
+        director.grid(row = 2, column = 0)
+        self.directorTF.grid(row = 2, column = 1)
+        submitterName.grid(row = 3, column = 0)
+        self.submitterNameTF.grid(row = 3, column = 1)
+        submitterPhone.grid(row = 4, column = 0)
+        self.submitterPhoneTF.grid(row = 4, column = 1)
+        synopsis.grid(row = 5, column = 0)
+        self.synopsisTF.grid(row = 5, column = 1)
+        runtime.grid(row = 6, column = 0)
+        self.runtimeTF.grid(row = 6, column = 1)
+        language.grid(row = 7, column = 0)
+        self.languageTF.grid(row = 7, column = 1)
+        subtitles.grid(row = 8, column = 0)
+        self.subtitleTF.grid(row = 8, column = 1)
+        location.grid(row = 9, column = 0)
+        self.locationTF.grid(row = 9, column = 1)
+        genre.grid(row = 10, column = 0)
+        self.genreTF.grid(row = 10, column = 1)
+        submit.grid(row = 11, column = 1)
+        cancel.grid(row = 11, column = 0)
+
+    def cancelApp(self):
+        #clears out text fields 
+        print("Canceled")
+        self.titleTF.delete(0, END)
+        self.directorTF.delete(0, END)
+        self.submitterNameTF.delete(0, END)
+        self.submitterPhoneTF.delete(0, END)
+        self.synopsisTF.delete(0, END)
+        self.runtimeTF.delete(0, END)
+        self.languageTF.delete(0, END)
+        self.subtitleTF.delete(0, END)
+        self.locationTF.delete(0, END)
+        self.genreTF.delete(0, END)
+
+    def submitApp(self):
+        print("Submitted")
 
 
 def connect(userName, passWord):
@@ -152,4 +220,5 @@ def connect(userName, passWord):
 if __name__ == "__main__":
     app = App()
     app.geometry('600x400')
+    app.title("Movie Review Application")
     app.mainloop()
