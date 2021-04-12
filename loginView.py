@@ -180,7 +180,24 @@ class GuestView(Frame):
         self.genreTF.delete(0, END)
 
     def submitApp(self):
+        #Submit the application to the database for approval
         print("Submitted")
+        str_title = self.titleTF.get()
+        str_director = self.directorTF.get()
+        str_submitterName = self.submitterNameTF.get()
+        str_submitterPhone = self.submitterPhoneTF.get()
+        str_synopsis = self.synopsisTF.get()
+        #When testing sample inputs, make sure to input an integer for the runtime
+        #otherwise it will send an error
+        int_runtime = int(self.runtimeTF.get())         
+        str_subtitle = self.subtitleTF.get()
+        str_location = self.locationTF.get()
+        str_genre = self.genreTF.get()
+
+        #insert the query to execute below here
+        #---------------------------------------------------
+
+        
 
 
 def connect(userName, passWord):
