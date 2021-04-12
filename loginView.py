@@ -15,7 +15,7 @@ class App(Tk):
 
         #the frames are stored here
         self.frames = {}
-        for F in (LogInPage, JurorDash, JuryChairDash, CommitteeChairDash, GuestView):
+        for F in (LogInPage, JurorDash, JuryChairDash, CommitteeChairDash, GuestView, ReviewView):
             page_name = F.__name__
             frame = F(parent = container, controller = self)
             self.frames[page_name] = frame
@@ -198,6 +198,130 @@ class GuestView(Frame):
         #---------------------------------------------------
 
         
+class ReviewView(Frame):
+
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        self.controller = controller
+        self.aveStr = StringVar()
+        self.aveStr.set("1.00")
+
+        #Set up the frame to hold the ratings
+        scrollCanvas = Canvas(self)
+        ratings = Frame(scrollCanvas)
+        scroll = Scrollbar(self,orient="vertical",command=scrollCanvas.yview)
+        ratings.bind(
+            "<Configure>",
+            lambda e: scrollCanvas.configure(
+                scrollregion=scrollCanvas.bbox("all")
+            )
+        )
+        scrollCanvas.create_window((0, 0), window=ratings, anchor=NW)
+        scrollCanvas.configure(yscrollcommand=scroll.set)
+
+        #Creating misc. stuff
+        movieName = Label(self, text = "Movie Title")
+        Cancel = Button(self, text = "Cancel", command = self.CancelFunc)
+        Submit = Button(self, text = "Submit")
+
+        #Creating the rating categories
+        directingLabel = Label(ratings, text = "Directing: ")
+        self.Directing = Scale(ratings, from_=1, to=9, tickinterval=1, orient="horizontal", command=self.updateValue)
+        actingLabel = Label(ratings, text = "Acting: ")
+        self.Acting = Scale(ratings, from_=1, to=9, tickinterval=1, orient="horizontal", command=self.updateValue)
+        editingLabel = Label(ratings, text = "Editing: ")
+        self.Editing = Scale(ratings, from_=1, to=9, tickinterval=1, orient="horizontal", command=self.updateValue)
+        soundLabel = Label(ratings, text = "Sound Quality: ")
+        self.Sound = Scale(ratings, from_=1, to=9, tickinterval=1, orient="horizontal", command=self.updateValue)
+        scoreLabel = Label(ratings, text = "Soundtrack (Score): ")
+        self.Score = Scale(ratings, from_=1, to=9, tickinterval=1, orient="horizontal", command=self.updateValue)
+        cinemaLabel = Label(ratings, text = "Cinematography: ")
+        self.Cinema = Scale(ratings, from_=1, to=9, tickinterval=1, orient="horizontal", command=self.updateValue)
+        screenplayLabel = Label(ratings, text = "Screenplay: ")
+        self.Screenplay = Scale(ratings, from_=1, to=9, tickinterval=1, orient="horizontal", command=self.updateValue)
+        audienceLabel = Label(ratings, text = "Audience Appeal: ")
+        self.Audience = Scale(ratings, from_=1, to=9, tickinterval=1, orient="horizontal", command=self.updateValue)
+        intentLabel = Label(ratings, text = "Filmaker's Intent Realized: ")
+        self.Intent = Scale(ratings, from_=1, to=9, tickinterval=1, orient="horizontal", command=self.updateValue)
+        averageLabel = Label(ratings, text = "Average Score: ")
+        AverageScore = Label(ratings, textvariable = self.aveStr)
+        overallLabel = Label(ratings, text = "Overall Score: ")
+        self.Overall = Scale(ratings, from_=1, to=9, tickinterval=1, orient="horizontal", command=self.updateValue)
+
+        #Textfield for review
+        reviewLabel = Label(self, text="Enter Comments Here:")
+        self.reviewText = Text(self, width=5, height=5)
+
+        #Awards nomination
+        awardLabel = Label(self, text="Award nomination?")
+        AwardVar = StringVar(self)
+        awardList = {'None','Best Film','Directing','Cinematography','Editing','Sound','Actor','Actress','Other'}
+        AwardVar.set('None')
+        awardMenu = OptionMenu(self, AwardVar, *awardList)
+
+        #Layout for main elements
+        movieName.pack(side=TOP)
+        Cancel.pack(side=LEFT, anchor=NW)
+        Submit.pack(side=RIGHT, anchor=NE)
+        scroll.pack(side=RIGHT, fill=Y, anchor=NE)
+        scrollCanvas.pack(side=TOP, fill=BOTH)
+        reviewLabel.pack(side=TOP, pady=5)
+        self.reviewText.pack(side=TOP, fill=X)
+        awardLabel.pack(side=TOP, pady=5)
+        awardMenu.pack(side=TOP)
+
+        #Gridding the ratings
+        directingLabel.grid(row=1, column=1)
+        self.Directing.grid(row=1, column=2)
+        
+        actingLabel.grid(row=2, column=1)
+        self.Acting.grid(row=2, column=2)
+        
+        editingLabel.grid(row=3, column=1)
+        self.Editing.grid(row=3, column=2)
+        
+        soundLabel.grid(row=4, column=1)
+        self.Sound.grid(row=4, column=2)
+
+        scoreLabel.grid(row=5, column=1)
+        self.Score.grid(row=5, column=2)
+        
+        cinemaLabel.grid(row=6, column=1)
+        self.Cinema.grid(row=6, column=2)
+        
+        screenplayLabel.grid(row=7, column=1)
+        self.Screenplay.grid(row=7, column=2)
+        
+        audienceLabel.grid(row=8, column=1)
+        self.Audience.grid(row=8, column=2)
+
+        intentLabel.grid(row=9, column=1)
+        self.Intent.grid(row=9, column=2)
+
+        averageLabel.grid(row=10, column=1)
+        AverageScore.grid(row=10, column=2)
+
+        overallLabel.grid(row=11, column=1)
+        self.Overall.grid(row=11, column=2)
+
+    def updateValue(self,dummy):
+        ave = 0
+        ave += self.Directing.get()
+        ave += self.Acting.get()
+        ave += self.Editing.get()
+        ave += self.Sound.get()
+        ave += self.Score.get()
+        ave += self.Cinema.get()
+        ave += self.Screenplay.get()
+        ave += self.Audience.get()
+        ave += self.Intent.get()
+        ave = round(ave / 9, 2)
+        self.aveStr.set(str(ave))
+
+    def CancelFunc(self):
+        self.controller.show_frame("JurorDash")
+
+    #def SubmitFunc(self):
 
 
 def connect(userName, passWord):
