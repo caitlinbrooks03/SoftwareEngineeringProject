@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 import mysql.connector
 from mysql.connector import Error
 
@@ -90,8 +91,44 @@ class JurorDash(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
-        label = Label(self, text = "This will be the view on Juror login")
-        label.pack(side = "top", fill = "x", pady=10)
+
+        # create the treeview on the ui
+        self.tree = ttk.Treeview(self, columns = (1,2,3), height = 5, show = "headings")
+
+        #create the headings for the columns
+        self.tree.heading(1, text="Film")
+        self.tree.heading(2, text="Director")
+        self.tree.heading(3, text="Runtime")
+
+        #formatting the columns
+        self.tree.column(1, width = 100)
+        self.tree.column(2, width = 100)
+        self.tree.column(3, width = 100)
+
+        #including a scrollbar
+        scroll = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=scroll.set)
+
+        self.tree.grid(column=0, row = 1)
+        scroll.grid(column =1, row = 1)
+
+        #populate the treeview with the data from the films
+        self.populateTree()
+        
+
+
+    #Tree View -- Fill with data on the Films
+    def populateTree(self):
+        #Query to put film data into the tree view
+        #Enter Below
+
+        data = getDataTree()
+        
+        #inserts the data into the treeview
+        for val in data:
+            self.tree.insert('', 'end', values = (val[0], val[1], val[2]) )
+
+        
 
 #This is the new generic frame for jury chair
 class JuryChairDash(Frame):
@@ -202,6 +239,7 @@ class GuestView(Frame):
 
         #insert the query to execute below here
         #---------------------------------------------------
+
 
         
 class ReviewView(Frame):
@@ -368,6 +406,40 @@ def connect(userName, passWord):
     finally:
         if conn is not None and conn.is_connected():
             conn.close()
+
+
+def getDataTree():
+    """ Connect to mySQL database """
+    try:
+        '''
+            username is always root
+            password is Y7uzourl
+            host name is either the server name or the ip address where mysql is running
+            database name is film_review_db'
+        '''
+        conn = mysql.connector.connect(host='puff.mnstate.edu',
+                                       database='aries-qualey_film_review',
+                                       user='aries-qualey',
+                                       password='Y7uzourl')
+        data = []
+        if conn.is_connected():
+            logincursor = conn.cursor()
+            logincursor.execute("SELECT movieName, director, runtime FROM application_table")
+            result = logincursor.fetchone()
+
+        
+        while(result[0]):
+            data.append([result[0],result[1],result[2]])
+            return data        
+
+    except Error as e:
+        print(e)
+
+    finally:
+        if conn is not None and conn.is_connected():
+            conn.close()
+
+
 
 
 if __name__ == "__main__":
