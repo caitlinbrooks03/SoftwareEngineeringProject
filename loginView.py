@@ -64,13 +64,19 @@ class LogInPage(Frame):
         userName = self.usernameTF.get()
         passWord = self.passwordTF.get()
 
-        print("Username: " + userName + "\nPassword: " + passWord)
+        #print("Username: " + userName + "\nPassword: " + passWord)
 
         #Below: the functionality of the button should be entered here
         #Such as the query
         
-        if connect(userName, passWord):
+        #Determines which view to use based on the type of account used to log in
+        view = connect(userName, passWord)
+        if view == "juror":
             self.controller.show_frame("JurorDash")
+        elif view == "juryChair":
+            self.controller.show_frame("JuryChairDash")
+        elif view == "committeeChair":
+            self.controller.show_frame("CommitteeChairDash")
 
     def Guest(self):
 
@@ -84,7 +90,7 @@ class JurorDash(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
-        label = Label(self, text = "This will be the view on login")
+        label = Label(self, text = "This will be the view on Juror login")
         label.pack(side = "top", fill = "x", pady=10)
 
 #This is the new generic frame for jury chair
@@ -93,7 +99,7 @@ class JuryChairDash(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
-        label = Label(self, text = "This will be the view on login")
+        label = Label(self, text = "This will be the view on Jury Chair login")
         label.pack(side = "top", fill = "x", pady=10)
 
 #This is the new generic frame for committee chair
@@ -102,7 +108,7 @@ class CommitteeChairDash(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
-        label = Label(self, text = "This will be the view on login")
+        label = Label(self, text = "This will be the view on Committee Chair login")
         label.pack(side = "top", fill = "x", pady=10)
 
 
@@ -216,15 +222,21 @@ def connect(userName, passWord):
 
         if conn.is_connected():
             logincursor = conn.cursor()
-            logincursor.execute("SELECT EXISTS (SELECT * FROM login_table WHERE username_c = %s AND password_c = %s)", (userName, passWord,))
+            logincursor.execute("SELECT userTypeCode_c FROM login_table WHERE username_c = %s AND password_c = %s", (userName, passWord,))
             result = logincursor.fetchone()
 
             if result[0] == 1:
-                print ("Login successful!")
-                return True
+                #I'm not sure if we'll still be using the submitter account type but I left it in just in case
+                return "submitter"
+            elif result[0] == 2:
+                return "juror"
+            elif result[0] == 3:
+                return "juryChair"
+            elif result[0] == 4: 
+                return "committeeChair"
             else:
                 print ("Username or password incorrect. Please try again.")
-                return False
+                
 
     except Error as e:
         print(e)
