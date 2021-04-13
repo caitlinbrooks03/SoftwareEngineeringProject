@@ -425,12 +425,11 @@ def getDataTree():
         if conn.is_connected():
             logincursor = conn.cursor()
             logincursor.execute("SELECT movieName, director, runtime FROM application_table")
-            result = logincursor.fetchone()
-
+            
         
-        while(result[0]):
-            data.append([result[0],result[1],result[2]])
-            return data        
+        for row in logincursor.fetchall():
+            data.append([row[0],row[1],row[2]])
+        return data        
 
     except Error as e:
         print(e)
