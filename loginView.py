@@ -88,12 +88,15 @@ class LogInPage(Frame):
 #This is the new generic frame for jurors
 class JurorDash(Frame):
 
+    
+
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
 
         # create the treeview on the ui
         self.tree = ttk.Treeview(self, columns = (1,2,3), height = 5, show = "headings")
+        review = Button(self, text = "Review", command = self.reviewBtn)
 
         #create the headings for the columns
         self.tree.heading(1, text="Film")
@@ -111,9 +114,13 @@ class JurorDash(Frame):
 
         self.tree.grid(column=0, row = 1)
         scroll.grid(column =1, row = 1)
+        review.grid(column =2, row =1)
+
+
 
         #populate the treeview with the data from the films
         self.populateTree()
+        self.tree.bind("<Double-1>", self.getOverview)
         
 
 
@@ -128,6 +135,61 @@ class JurorDash(Frame):
         for val in data:
             self.tree.insert('', 'end', values = (val[0], val[1], val[2]) )
 
+    #Tree View -- Get the more specific film information
+    def getOverview(self, event):
+        #Gets the selected row
+        Item = self.tree.focus()
+
+        #gets the name of the film that has been selected
+        curItem = self.tree.item(Item)['values'][0]
+        movie = curItem
+        data = getFilmOverview(curItem)
+        self.overviewPopUp(data)
+
+    def overviewPopUp(self, data):
+        #popup window
+        win = Toplevel()
+        win_title = data[0][1] + " Information"
+        win.wm_title(win_title)
+        director = Label(win, text = "Director of Film")
+        title = Label(win, text = "Title of Film")
+        synopsis = Label(win, text = "Synopsis")
+        runtime = Label(win, text = "Total Runtime")
+        language = Label(win, text = "Language")
+        subtitles = Label(win, text = "Subtitles")
+        location = Label(win, text = "How to access film")
+        genre = Label(win, text = "Genre")
+
+        dir_entry = Label(win, text = data[0][0])
+        title_entry = Label(win, text = data[0][1])
+        synopsis_entry = Label(win, text = data[0][2])
+        runtime_entry = Label(win, text = data[0][3])
+        language_entry = Label(win, text = data[0][4])
+        subtitles_entry = Label(win, text = data[0][5])
+        location_entry = Label(win, text = data[0][6])
+        genre_entry = Label(win, text = data[0][7])
+
+        director.grid(row = 1, column = 0)
+        dir_entry.grid(row = 1, column = 1)
+        title.grid(row = 2, column = 0)
+        title_entry.grid(row = 2, column = 1)
+        synopsis.grid(row = 3, column = 0)
+        synopsis_entry.grid(row = 3, column = 1)
+        runtime.grid(row = 4, column = 0)
+        runtime_entry.grid(row = 4, column = 1)
+        language.grid(row = 5, column = 0)
+        language_entry.grid(row = 5, column = 1)
+        subtitles.grid(row = 6, column = 0)
+        subtitles_entry.grid(row = 6, column = 1)
+        location.grid(row = 7, column = 0)
+        location_entry.grid(row = 7, column = 1)
+        genre.grid(row = 8, column = 0)
+        genre_entry.grid(row = 8, column = 1)
+
+    def reviewBtn(self):
+        self.controller.show_frame("ReviewView")
+
+        
         
 
 #This is the new generic frame for jury chair
@@ -264,6 +326,7 @@ class ReviewView(Frame):
         scrollCanvas.configure(yscrollcommand=scroll.set)
 
         #Creating misc. stuff
+
         movieName = Label(self, text = "Movie Title")
         Cancel = Button(self, text = "Cancel", command = self.CancelFunc)
         Submit = Button(self, text = "Submit")
@@ -438,7 +501,35 @@ def getDataTree():
         if conn is not None and conn.is_connected():
             conn.close()
 
+def getFilmOverview(curItem):
+    try:
+        '''
+            username is always root
+            password is Y7uzourl
+            host name is either the server name or the ip address where mysql is running
+            database name is film_review_db'
+        '''
+        conn = mysql.connector.connect(host='puff.mnstate.edu',
+                                       database='aries-qualey_film_review',
+                                       user='aries-qualey',
+                                       password='Y7uzourl')
 
+        if conn.is_connected():
+            logincursor = conn.cursor()
+            logincursor.execute("SELECT * FROM application_table WHERE movieName = %s", (curItem,))
+            result = logincursor.fetchone()
+
+        data = []
+        data.append([result[1], result[3], result[4], 
+                    result[5], result[6], result[7], result[8], result[9]])
+        return data
+
+    except Error as e:
+        print(e)
+
+    finally:
+        if conn is not None and conn.is_connected():
+            conn.close()
 
 
 if __name__ == "__main__":
