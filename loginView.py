@@ -203,8 +203,9 @@ class JurorDash(Frame):
         genre_entry.grid(row = 8, column = 1)
 
     def reviewBtn(self):
+        reviewF = self.controller.get_frame("ReviewView")
+        reviewF.movie.set(self.mChoice.get())
         self.controller.show_frame("ReviewView")
-
         
         
 
@@ -343,9 +344,9 @@ class ReviewView(Frame):
 
         #Creating misc. stuff
 
-        jDash = self.controller.get_frame("JurorDash")
-        movie = jDash.mChoice.get()
-        movieName = Label(self, text = movie)
+        self.movie = StringVar()
+        self.movie.set('Default')
+        movieName = Label(self, textvariable=movie)
         Cancel = Button(self, text = "Cancel", command = self.CancelFunc)
         Submit = Button(self, text = "Submit")
 
