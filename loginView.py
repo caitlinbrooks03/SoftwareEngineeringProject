@@ -29,7 +29,13 @@ class App(Tk):
         #Show a frame for the given page name
         frame = self.frames[page_name]
         frame.tkraise()
-
+    
+    def get_frame(self, classname):
+        '''Returns an instance of a frame given it's class name as a string'''
+        for F in self.frames.values():
+            if str(F.__class__.__name__) == classname:
+                return F
+        return None
 
 class LogInPage(Frame):
 
@@ -114,6 +120,16 @@ class JurorDash(Frame):
 
         self.tree.grid(column=0, row = 1)
         scroll.grid(column =1, row = 1)
+        
+        #To connect to the review screen
+        self.mChoice = StringVar(self)
+        titleList = []
+        movieData = getDataTree()
+        for movie in movieData:
+            titleList.append(movie[0])
+        self.mChoice.set('Choose a movie to review')
+        self.choiceMenu = OptionMenu(self, self.mChoice, *titleList)
+        self.choiceMenu.grid(column =2, row =1)
         review.grid(column =2, row =1)
 
 
@@ -327,7 +343,9 @@ class ReviewView(Frame):
 
         #Creating misc. stuff
 
-        movieName = Label(self, text = "Movie Title")
+        jDash = self.controller.get_frame("JurorDash")
+        movie = jDash.mChoice.get()
+        movieName = Label(self, text = movie)
         Cancel = Button(self, text = "Cancel", command = self.CancelFunc)
         Submit = Button(self, text = "Submit")
 
@@ -361,10 +379,10 @@ class ReviewView(Frame):
 
         #Awards nomination
         awardLabel = Label(self, text="Award nomination?")
-        AwardVar = StringVar(self)
-        awardList = {'None','Best Film','Directing','Cinematography','Editing','Sound','Actor','Actress','Other'}
-        AwardVar.set('None')
-        awardMenu = OptionMenu(self, AwardVar, *awardList)
+        self.AwardVar = StringVar(self)
+        awardList = ['None','Best Film','Directing','Cinematography','Editing','Sound','Actor','Actress','Other']
+        self.AwardVar.set('None')
+        self.awardMenu = OptionMenu(self, self.AwardVar, *awardList)
 
         #Layout for main elements
         movieName.pack(side=TOP)
@@ -375,7 +393,7 @@ class ReviewView(Frame):
         reviewLabel.pack(side=TOP, pady=5)
         self.reviewText.pack(side=TOP, fill=X)
         awardLabel.pack(side=TOP, pady=5)
-        awardMenu.pack(side=TOP)
+        self.awardMenu.pack(side=TOP)
 
         #Gridding the ratings
         directingLabel.grid(row=1, column=1)
@@ -426,6 +444,18 @@ class ReviewView(Frame):
         self.aveStr.set(str(ave))
 
     def CancelFunc(self):
+        self.Directing.set(1)
+        self.Acting.set(1)
+        self.Editing.set(1)
+        self.Sound.set(1)
+        self.Score.set(1)
+        self.Cinema.set(1)
+        self.Screenplay.set(1)
+        self.Audience.set(1)
+        self.Intent.set(1)
+        self.Overall.set(1)
+        self.reviewText.delete(1.0,END)
+        self.AwardVar.set('None')
         self.controller.show_frame("JurorDash")
 
     #def SubmitFunc(self):
