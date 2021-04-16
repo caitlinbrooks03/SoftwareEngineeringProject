@@ -130,7 +130,7 @@ class JurorDash(Frame):
         self.mChoice.set('Choose a movie to review')
         self.choiceMenu = OptionMenu(self, self.mChoice, *titleList)
         self.choiceMenu.grid(column =2, row =1)
-        review.grid(column =2, row =1)
+        review.grid(column =3, row =1)
 
 
 
@@ -311,7 +311,8 @@ class GuestView(Frame):
         str_synopsis = self.synopsisTF.get()
         #When testing sample inputs, make sure to input an integer for the runtime
         #otherwise it will send an error
-        int_runtime = int(self.runtimeTF.get())         
+        str_language = self.languageTF.get()
+        str_runtime = self.runtimeTF.get()      
         str_subtitle = self.subtitleTF.get()
         str_location = self.locationTF.get()
         str_genre = self.genreTF.get()
@@ -320,6 +321,31 @@ class GuestView(Frame):
         #---------------------------------------------------
 
 
+        paramList = [str_director, str_submitterName, str_title, str_synopsis, str_runtime,
+                    str_language, str_subtitle, str_location, str_genre, str_submitterPhone]
+
+        try:
+            '''username is always root
+           password is Y7uzourl
+           host name is either the server name or the ip address where mysql is running
+           database name is film_review_db'
+            '''
+            conn = mysql.connector.connect(host='puff.mnstate.edu',
+                                       database='aries-qualey_film_review',
+                                       user='aries-qualey',
+                                       password='Y7uzourl')
+
+            if conn.is_connected():
+                cursor = conn.cursor()
+                cursor.callproc('submitMovie3', paramList)
+                conn.commit()
+
+        except Error as e:
+            print(e)
+
+        finally:
+            if conn is not None and conn.is_connected():
+                conn.close()
         
 class ReviewView(Frame):
 
@@ -346,7 +372,7 @@ class ReviewView(Frame):
 
         self.movie = StringVar()
         self.movie.set('Default')
-        movieName = Label(self, textvariable=movie)
+        movieName = Label(self, textvariable=self.movie)
         Cancel = Button(self, text = "Cancel", command = self.CancelFunc)
         Submit = Button(self, text = "Submit")
 
