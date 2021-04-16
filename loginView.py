@@ -485,7 +485,56 @@ class ReviewView(Frame):
         self.AwardVar.set('None')
         self.controller.show_frame("JurorDash")
 
-    #def SubmitFunc(self):
+    def SubmitFunc(self):
+        int_directing = self.Directing.get()
+        int_acting = self.Acting.get()
+        int_editing = self.Editing.get()
+        int_sound = self.Sound.get()
+        int_score = self.Score.get()
+        int_cinema = self.Cinema.get()
+        int_screen = self.Screenplay.get()
+        int_audience = self.Audience.get()
+        int_intent = self.Intent.get()
+        str_average = self.aveStr.get()
+        int_overall = self.Overall.get()
+        str_review = self.reviewText.get("1.0","end")
+        login = self.controller.get_frame("LogInPage")
+        user = login.usernameTF.get()
+        str_awardNom = self.AwardVar.get()
+        try:
+            conn = mysql.connector.connect(host='puff.mnstate.edu',
+                                           database='aries-qualey_film_review',
+                                           user='aries-qualey',
+                                           password='Y7uzourl')
+            if conn.is_connected():
+                submitCursor = conn.cursor()
+                submitCursor.execute("SELECT movieID FROM application_table WHERE movieName = %s", (self.movie.get(),))
+                result = submitCursor.fetchone()
+                movieID = int(result[0])
+                paramList = [movieID,user,int_directing,int_acting,int_editing,int_sound,int_score,int_cinema,int_screen,int_audience,int_intent,str_review,int_overall,str_average]
+                submitCursor.callproc("submitReview2",paramList)
+                submitCursor.execute("INSERT INTO nominations_table (movieID, award) VALUES (%s, %s)", (movieID, str_awardNom,))
+                conn.commit()
+        
+        except Error as e:
+            print(e)
+
+        finally:
+            if conn is not None and conn.is_connected():
+                conn.close()
+                self.Directing.set(1)
+                self.Acting.set(1)
+                self.Editing.set(1)
+                self.Sound.set(1)
+                self.Score.set(1)
+                self.Cinema.set(1)
+                self.Screenplay.set(1)
+                self.Audience.set(1)
+                self.Intent.set(1)
+                self.Overall.set(1)
+                self.reviewText.delete(1.0,END)
+                self.AwardVar.set('None')
+                self.controller.show_frame("JurorDash")
 
 
 def connect(userName, passWord):
