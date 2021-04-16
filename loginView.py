@@ -289,7 +289,6 @@ class GuestView(Frame):
 
     def cancelApp(self):
         #clears out text fields 
-        print("Canceled")
         self.titleTF.delete(0, END)
         self.directorTF.delete(0, END)
         self.submitterNameTF.delete(0, END)
@@ -303,7 +302,6 @@ class GuestView(Frame):
 
     def submitApp(self):
         #Submit the application to the database for approval
-        print("Submitted")
         str_title = self.titleTF.get()
         str_director = self.directorTF.get()
         str_submitterName = self.submitterNameTF.get()
@@ -346,7 +344,9 @@ class GuestView(Frame):
         finally:
             if conn is not None and conn.is_connected():
                 conn.close()
-        
+
+        self.cancelApp()
+
 class ReviewView(Frame):
 
     def __init__(self, parent, controller):
