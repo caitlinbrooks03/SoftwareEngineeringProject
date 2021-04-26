@@ -85,6 +85,9 @@ class LogInPage(Frame):
         elif view == "committeeChair":
             self.controller.show_frame("CommitteeChairDash")
 
+        self.usernameTF.delete(0, END)
+        self.passwordTF.delete(0, END)
+
     def Guest(self):
 
         #change frame for the guest film submission page
@@ -99,10 +102,12 @@ class JurorDash(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
+        
 
         # create the treeview on the ui
         self.tree = ttk.Treeview(self, columns = (1,2,3), height = 5, show = "headings")
         review = Button(self, text = "Review", command = self.reviewBtn)
+        logOut = Button(self, text = "Log Out", command = self.logOutBtn)
 
         #create the headings for the columns
         self.tree.heading(1, text="Film")
@@ -131,6 +136,7 @@ class JurorDash(Frame):
         self.choiceMenu = OptionMenu(self, self.mChoice, *titleList)
         self.choiceMenu.grid(column =2, row =1)
         review.grid(column =3, row =1)
+        logOut.grid(column = 5, row = 5)
 
 
 
@@ -202,6 +208,9 @@ class JurorDash(Frame):
         genre.grid(row = 8, column = 0)
         genre_entry.grid(row = 8, column = 1)
 
+    def logOutBtn(self):
+        self.controller.show_frame("LogInPage")
+
     def reviewBtn(self):
         reviewF = self.controller.get_frame("ReviewView")
         reviewF.movie.set(self.mChoice.get())
@@ -216,7 +225,13 @@ class JuryChairDash(Frame):
         Frame.__init__(self, parent)
         self.controller = controller
         label = Label(self, text = "This will be the view on Jury Chair login")
-        label.pack(side = "top", fill = "x", pady=10)
+        label.grid(column = 1, row = 1)
+        logOut = Button(self, text = "Log Out", command = self.logOutBtn)
+        logOut.grid(column = 5, row = 5)
+
+    def logOutBtn(self):
+        self.controller.show_frame("LogInPage")
+
 
 #This is the new generic frame for committee chair
 class CommitteeChairDash(Frame):
@@ -225,7 +240,12 @@ class CommitteeChairDash(Frame):
         Frame.__init__(self, parent)
         self.controller = controller
         label = Label(self, text = "This will be the view on Committee Chair login")
-        label.pack(side = "top", fill = "x", pady=10)
+        label.grid(column = 1, row = 1)
+        logOut = Button(self, text = "Log Out", command = self.logOutBtn)
+        logOut.grid(column = 5, row = 5)
+
+    def logOutBtn(self):
+        self.controller.show_frame("LogInPage")
 
 
 class GuestView(Frame):
@@ -261,6 +281,7 @@ class GuestView(Frame):
         #Creation of Buttons
         submit = Button(self, text = "Submit", command = self.submitApp)
         cancel = Button(self, text = "Cancel", command = self.cancelApp)
+        back = Button(self, text = "Return to Login", command = self.logOutBtn)
 
 
         #Layout of available fields
@@ -286,6 +307,7 @@ class GuestView(Frame):
         self.genreTF.grid(row = 10, column = 1)
         submit.grid(row = 11, column = 1)
         cancel.grid(row = 11, column = 0)
+        back.grid(row = 11 , column = 2)
 
     def cancelApp(self):
         #clears out text fields 
@@ -346,6 +368,9 @@ class GuestView(Frame):
                 conn.close()
 
         self.cancelApp()
+
+    def logOutBtn(self):
+        self.controller.show_frame("LogInPage")
 
 class ReviewView(Frame):
 
