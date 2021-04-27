@@ -49,7 +49,7 @@ class LogInPage(Frame):
         userLabel = Label(self, text = "Username: ")
         self.usernameTF = Entry(self, bd = 5)
         passwordLabel = Label(self, text = "Password: ")
-        self.passwordTF = Entry(self, bd = 5)
+        self.passwordTF = Entry(self, show = '*', bd = 5)
 
         LogIn = Button(self, text = "Log In", command = self.LogInFunc)
         Guest = Button(self, text = "Guest", command = self.Guest)
@@ -208,6 +208,7 @@ class JurorDash(Frame):
         genre.grid(row = 8, column = 0)
         genre_entry.grid(row = 8, column = 1)
 
+    
     def logOutBtn(self):
         self.controller.show_frame("LogInPage")
 
@@ -239,13 +240,71 @@ class CommitteeChairDash(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         self.controller = controller
-        label = Label(self, text = "This will be the view on Committee Chair login")
-        label.grid(column = 1, row = 1)
+        label = Label(self, text = "Film Application Info")
+        
+        self.tree = ttk.Treeview(self, columns = (1,2,3,4), height = 5, show = "headings")
+          
+        #create the headings for the columns
+        self.tree.heading(1, text="Film")
+        self.tree.heading(2, text="Director")
+        self.tree.heading(3, text="Runtime")
+        self.tree.heading(4, text = "Status")
+        
+        #Setting up the treeview columns
+        self.tree.column(1, width = 100)
+        self.tree.column(2, width = 100)
+        self.tree.column(3, width = 100)
+        self.tree.column(4, width = 100)
+
+        scroll = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=scroll.set)
+
+        #Setting up the buttons on the frame
         logOut = Button(self, text = "Log Out", command = self.logOutBtn)
+
+        #Grid layout
+        label.grid(column = 0, row = 0)
+        self.tree.grid(column=0, row = 1)
+        scroll.grid(column =1, row = 1)
         logOut.grid(column = 5, row = 5)
+
+        self.populateTree()
 
     def logOutBtn(self):
         self.controller.show_frame("LogInPage")
+
+    def populateTree(self):
+        """ Connect to mySQL database """
+        try:
+            '''
+                username is always root
+                password is Y7uzourl
+                host name is either the server name or the ip address where mysql is running
+                database name is film_review_db'
+            '''
+            conn = mysql.connector.connect(host='puff.mnstate.edu',
+                                           database='aries-qualey_film_review',
+                                           user='aries-qualey',
+                                           password='Y7uzourl')
+            data = []
+            if conn.is_connected():
+                logincursor = conn.cursor()
+                logincursor.execute("SELECT movieName, director, runtime FROM application_table")
+            
+        
+            for row in logincursor.fetchall():
+                data.append([row[0],row[1],row[2]])
+             
+
+        except Error as e:
+            print(e)
+
+        finally:
+            if conn is not None and conn.is_connected():
+                conn.close()
+
+        for val in data:
+            self.tree.insert('', 'end', values = (val[0], val[1], val[2]) )
 
 
 class GuestView(Frame):
@@ -329,8 +388,6 @@ class GuestView(Frame):
         str_submitterName = self.submitterNameTF.get()
         str_submitterPhone = self.submitterPhoneTF.get()
         str_synopsis = self.synopsisTF.get()
-        #When testing sample inputs, make sure to input an integer for the runtime
-        #otherwise it will send an error
         str_language = self.languageTF.get()
         str_runtime = self.runtimeTF.get()      
         str_subtitle = self.subtitleTF.get()
@@ -631,6 +688,8 @@ def getDataTree():
     finally:
         if conn is not None and conn.is_connected():
             conn.close()
+
+
 
 def getFilmOverview(curItem):
     try:
