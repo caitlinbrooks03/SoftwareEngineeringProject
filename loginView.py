@@ -289,6 +289,7 @@ class CommitteeChairDash(Frame):
             data = []
             if conn.is_connected():
                 logincursor = conn.cursor()
+                #Need to know what the status situation is regarding approved, rejected, and pending film applications
                 logincursor.execute("SELECT movieName, director, runtime FROM application_table")
             
         
@@ -303,6 +304,7 @@ class CommitteeChairDash(Frame):
             if conn is not None and conn.is_connected():
                 conn.close()
 
+        
         for val in data:
             self.tree.insert('', 'end', values = (val[0], val[1], val[2]) )
 
