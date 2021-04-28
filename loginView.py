@@ -290,11 +290,16 @@ class CommitteeChairDash(Frame):
             if conn.is_connected():
                 logincursor = conn.cursor()
                 #Need to know what the status situation is regarding approved, rejected, and pending film applications
-                logincursor.execute("SELECT movieName, director, runtime FROM application_table")
+                logincursor.execute("SELECT movieName, director, runtime, approved FROM application_table")
             
         
             for row in logincursor.fetchall():
-                data.append([row[0],row[1],row[2]])
+                if row[3] == 0:
+                    data.append([row[0],row[1],row[2], "Pending"])
+                if row[3] == 1:
+                    data.append([row[0], row[1], row[2], "Approved"])
+                if row[3] == 2:
+                    data.append([row[0], row[1], row[2], "Rejected"])
              
 
         except Error as e:
@@ -306,7 +311,7 @@ class CommitteeChairDash(Frame):
 
         
         for val in data:
-            self.tree.insert('', 'end', values = (val[0], val[1], val[2]) )
+            self.tree.insert('', 'end', values = (val[0], val[1], val[2], val[3]) )
 
 
 class GuestView(Frame):
@@ -677,11 +682,12 @@ def getDataTree():
         data = []
         if conn.is_connected():
             logincursor = conn.cursor()
-            logincursor.execute("SELECT movieName, director, runtime FROM application_table")
+            logincursor.execute("SELECT movieName, director, runtime, approved FROM application_table")
             
         
         for row in logincursor.fetchall():
-            data.append([row[0],row[1],row[2]])
+            if row[3] == 1:
+                data.append([row[0],row[1],row[2]])
         return data        
 
     except Error as e:
