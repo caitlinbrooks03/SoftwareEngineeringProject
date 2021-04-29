@@ -87,6 +87,7 @@ class LogInPage(Frame):
             self.controller.show_frame("JuryChairDash")
         elif view == "committeeChair":
             self.controller.show_frame("CommitteeChairDash")
+        
 
         self.usernameTF.delete(0, END)
         self.passwordTF.delete(0, END)
@@ -771,14 +772,16 @@ def connect(userName, passWord):
             logincursor.execute("SELECT userTypeCode_c FROM login_table WHERE username_c = %s AND password_c = %s", (userName, passWord,))
             result = logincursor.fetchone()
 
-            if result[0] == 2:
-                return "juror"
-            elif result[0] == 3:
-                return "juryChair"
-            elif result[0] == 4: 
-                return "committeeChair"
-            else:
-                print ("Username or password incorrect. Please try again.")
+            try:
+                if result[0] == 2:
+                    return "juror"
+                elif result[0] == 3:
+                    return "juryChair"
+                elif result[0] == 4: 
+                    return "committeeChair"
+            except:
+                print("Invalid Login! Incorrect Username or Password")
+            
                 
 
     except Error as e:
