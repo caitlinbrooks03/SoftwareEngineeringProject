@@ -626,6 +626,10 @@ class ReviewView(Frame):
         awardList = ['None','Best Film','Directing','Cinematography','Editing','Sound','Actor','Actress','Other']
         self.AwardVar.set('None')
         self.awardMenu = OptionMenu(self, self.AwardVar, *awardList)
+        
+        #Suggest Box
+        self.var = IntVar()
+        self.Suggest = Checkbutton(self, text='Suggest this movie for the festival?', variable=self.var)
 
         #Layout for main elements
         movieName.pack(side=TOP)
@@ -637,6 +641,7 @@ class ReviewView(Frame):
         self.reviewText.pack(side=TOP, fill=X)
         awardLabel.pack(side=TOP, pady=5)
         self.awardMenu.pack(side=TOP)
+        self.Suggest.pack(side=TOP)
 
         #Gridding the ratings
         directingLabel.grid(row=1, column=1)
@@ -717,6 +722,7 @@ class ReviewView(Frame):
         login = self.controller.get_frame("LogInPage")
         user = login.usernameTF.get()
         str_awardNom = self.AwardVar.get()
+        int_suggest = self.var.get()
         try:
             conn = mysql.connector.connect(host='puff.mnstate.edu',
                                            database='aries-qualey_film_review',
@@ -727,7 +733,7 @@ class ReviewView(Frame):
                 submitCursor.execute("SELECT movieID FROM application_table WHERE movieName = %s", (self.movie.get(),))
                 result = submitCursor.fetchone()
                 movieID = int(result[0])
-                paramList = [movieID,user,int_directing,int_acting,int_editing,int_sound,int_score,int_cinema,int_screen,int_audience,int_intent,str_review,int_overall,str_average]
+                paramList = [movieID,user,int_directing,int_acting,int_editing,int_sound,int_score,int_cinema,int_screen,int_audience,int_intent,str_review,int_overall,str_average,int_suggest]
                 submitCursor.callproc("submitReview2",paramList)
                 submitCursor.execute("INSERT INTO nominations_table (movieID, award) VALUES (%s, %s)", (movieID, str_awardNom,))
                 conn.commit()
