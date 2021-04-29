@@ -792,7 +792,7 @@ def connect(userName, passWord):
             conn.close()
 
 
-def getDataTree():
+def getDataTree(user):
     """ Connect to mySQL database """
     try:
         '''
@@ -812,7 +812,7 @@ def getDataTree():
             logincursor.execute("SELECT movieID FROM review_table WHERE username_c = %s", (user,))
             for row in logincursor.fetchall():
                 movielist.append(row[0])
-            logincursor.execute("SELECT movieName, director, runtime, approved FROM application_table")
+            logincursor.execute("SELECT movieName, director, runtime, approved, movieID FROM application_table")
             
         
         for row in logincursor.fetchall():
