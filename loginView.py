@@ -261,12 +261,15 @@ class CommitteeChairDash(Frame):
 
         #Setting up the buttons on the frame
         logOut = Button(self, text = "Log Out", command = self.logOutBtn)
+      
 
         #Grid layout
         label.grid(column = 0, row = 0)
         self.tree.grid(column=0, row = 1)
         scroll.grid(column =1, row = 1)
+        
         logOut.grid(column = 5, row = 5)
+
 
         self.populateTree()
         self.tree.bind("<Double-1>", self.getOverview)
@@ -328,7 +331,7 @@ class CommitteeChairDash(Frame):
 
         self.movieID = data[0][0]
         #popup window
-        print(data)
+        
         win = Toplevel()
         win_title = data[0][1] + " Information"
         win.wm_title(win_title)
@@ -376,7 +379,6 @@ class CommitteeChairDash(Frame):
   
     def approveFilmBtn(self):
         #Approve the films
-        print("approved")
         try:
             '''username is always root
            password is Y7uzourl
@@ -399,10 +401,12 @@ class CommitteeChairDash(Frame):
         finally:
             if conn is not None and conn.is_connected():
                 conn.close()
+
+        self.refresh()
+        
         
     def rejectFilmBtn(self):
         #reject the films
-        print("reject")
         try:
             '''username is always root
            password is Y7uzourl
@@ -425,6 +429,15 @@ class CommitteeChairDash(Frame):
         finally:
             if conn is not None and conn.is_connected():
                 conn.close()
+
+        self.refresh()
+
+    def refresh(self):
+        for i in self.tree.get_children():
+            self.tree.delete(i)  
+        self.populateTree()
+
+
         
     
 
