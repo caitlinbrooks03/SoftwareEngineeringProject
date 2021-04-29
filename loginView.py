@@ -80,6 +80,9 @@ class LogInPage(Frame):
         view = connect(userName, passWord)
         if view == "juror":
             self.controller.show_frame("JurorDash")
+            juror = self.controller.get_frame("JurorDash")
+            juror.populateTree()
+            juror.tree.bind("<Double-1>", juror.getOverview)
         elif view == "juryChair":
             self.controller.show_frame("JuryChairDash")
         elif view == "committeeChair":
@@ -105,7 +108,7 @@ class JurorDash(Frame):
         
 
         # create the treeview on the ui
-        self.tree = ttk.Treeview(self, columns = (1,2,3), height = 5, show = "headings")
+        self.tree = ttk.Treeview(self, columns = (1,2,3,4), height = 5, show = "headings")
         review = Button(self, text = "Review", command = self.reviewBtn)
         logOut = Button(self, text = "Log Out", command = self.logOutBtn)
 
@@ -113,11 +116,13 @@ class JurorDash(Frame):
         self.tree.heading(1, text="Film")
         self.tree.heading(2, text="Director")
         self.tree.heading(3, text="Runtime")
+        self.tree.heading(4, text="Reviewed")
 
         #formatting the columns
         self.tree.column(1, width = 100)
         self.tree.column(2, width = 100)
         self.tree.column(3, width = 100)
+        self.tree.column(4, width = 100)
 
         #including a scrollbar
         scroll = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
@@ -129,7 +134,7 @@ class JurorDash(Frame):
         #To connect to the review screen
         self.mChoice = StringVar(self)
         titleList = []
-        movieData = getDataTree()
+        movieData = getDataTree("dummy")
         for movie in movieData:
             titleList.append(movie[0])
         self.mChoice.set('Choose a movie to review')
@@ -138,24 +143,18 @@ class JurorDash(Frame):
         review.grid(column =3, row =1)
         logOut.grid(column = 5, row = 5)
 
-
-
-        #populate the treeview with the data from the films
-        self.populateTree()
-        self.tree.bind("<Double-1>", self.getOverview)
-        
-
-
     #Tree View -- Fill with data on the Films
     def populateTree(self):
         #Query to put film data into the tree view
         #Enter Below
 
-        data = getDataTree()
+        login = self.controller.get_frame("LogInPage")
+        user = login.usernameTF.get()
+        data = getDataTree(user)
         
         #inserts the data into the treeview
         for val in data:
-            self.tree.insert('', 'end', values = (val[0], val[1], val[2]) )
+            self.tree.insert('', 'end', values = (val[0], val[1], val[2], val[3]) )
 
     #Tree View -- Get the more specific film information
     def getOverview(self, event):
@@ -807,14 +806,20 @@ def getDataTree():
                                        user='aries-qualey',
                                        password='Y7uzourl')
         data = []
+        movielist = []
         if conn.is_connected():
             logincursor = conn.cursor()
+            logincursor.execute("SELECT movieID FROM review_table WHERE username_c = %s", (user,))
+            for row in logincursor.fetchall():
+                movielist.append(row[0])
             logincursor.execute("SELECT movieName, director, runtime, approved FROM application_table")
             
         
         for row in logincursor.fetchall():
-            if row[3] == 1:
-                data.append([row[0],row[1],row[2]])
+            if row[4] in movielist:
+                data.append([row[0],row[1],row[2],True])
+            else:
+                data.append([row[0],row[1],row[2],False])
         return data        
 
     except Error as e:
