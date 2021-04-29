@@ -182,14 +182,14 @@ class JurorDash(Frame):
         location = Label(win, text = "How to access film")
         genre = Label(win, text = "Genre")
 
-        dir_entry = Label(win, text = data[0][0])
-        title_entry = Label(win, text = data[0][1])
-        synopsis_entry = Label(win, text = data[0][2])
-        runtime_entry = Label(win, text = data[0][3])
-        language_entry = Label(win, text = data[0][4])
-        subtitles_entry = Label(win, text = data[0][5])
-        location_entry = Label(win, text = data[0][6])
-        genre_entry = Label(win, text = data[0][7])
+        dir_entry = Label(win, text = data[0][1])
+        title_entry = Label(win, text = data[0][2])
+        synopsis_entry = Label(win, text = data[0][3])
+        runtime_entry = Label(win, text = data[0][4])
+        language_entry = Label(win, text = data[0][5])
+        subtitles_entry = Label(win, text = data[0][6])
+        location_entry = Label(win, text = data[0][7])
+        genre_entry = Label(win, text = data[0][8])
 
         director.grid(row = 1, column = 0)
         dir_entry.grid(row = 1, column = 1)
@@ -269,6 +269,7 @@ class CommitteeChairDash(Frame):
         logOut.grid(column = 5, row = 5)
 
         self.populateTree()
+        self.tree.bind("<Double-1>", self.getOverview)
 
     def logOutBtn(self):
         self.controller.show_frame("LogInPage")
@@ -290,16 +291,16 @@ class CommitteeChairDash(Frame):
             if conn.is_connected():
                 logincursor = conn.cursor()
                 #Need to know what the status situation is regarding approved, rejected, and pending film applications
-                logincursor.execute("SELECT movieName, director, runtime, approved FROM application_table")
+                logincursor.execute("SELECT movieName, director, runtime, approved, movieID FROM application_table")
             
         
             for row in logincursor.fetchall():
                 if row[3] == 0:
-                    data.append([row[0],row[1],row[2], "Pending"])
+                    data.append([row[0],row[1],row[2], "Pending", row[4]])
                 if row[3] == 1:
-                    data.append([row[0], row[1], row[2], "Approved"])
+                    data.append([row[0], row[1], row[2], "Approved", row[4]])
                 if row[3] == 2:
-                    data.append([row[0], row[1], row[2], "Rejected"])
+                    data.append([row[0], row[1], row[2], "Rejected", row[4]])
              
 
         except Error as e:
@@ -313,6 +314,119 @@ class CommitteeChairDash(Frame):
         for val in data:
             self.tree.insert('', 'end', values = (val[0], val[1], val[2], val[3]) )
 
+    def getOverview(self, event):
+        #Gets the selected row
+        Item = self.tree.focus()
+
+        #gets the name of the film that has been selected
+        curItem = self.tree.item(Item)['values'][0]
+        movie = curItem
+        data = getFilmOverview(curItem)
+        self.overviewPopUp(data)
+
+    def overviewPopUp(self, data):
+
+        self.movieID = data[0][0]
+        #popup window
+        print(data)
+        win = Toplevel()
+        win_title = data[0][1] + " Information"
+        win.wm_title(win_title)
+        director = Label(win, text = "Director of Film")
+        title = Label(win, text = "Title of Film")
+        synopsis = Label(win, text = "Synopsis")
+        runtime = Label(win, text = "Total Runtime")
+        language = Label(win, text = "Language")
+        subtitles = Label(win, text = "Subtitles")
+        location = Label(win, text = "How to access film")
+        genre = Label(win, text = "Genre")
+
+        approve = Button(win, text = "Approve", command =self.approveFilmBtn)
+        reject = Button(win, text = "Reject", command = self.rejectFilmBtn)
+
+        
+
+        dir_entry = Label(win, text = data[0][1])
+        title_entry = Label(win, text = data[0][2])
+        synopsis_entry = Label(win, text = data[0][3])
+        runtime_entry = Label(win, text = data[0][4])
+        language_entry = Label(win, text = data[0][5])
+        subtitles_entry = Label(win, text = data[0][6])
+        location_entry = Label(win, text = data[0][7])
+        genre_entry = Label(win, text = data[0][8])
+
+        director.grid(row = 1, column = 0)
+        dir_entry.grid(row = 1, column = 1)
+        title.grid(row = 2, column = 0)
+        title_entry.grid(row = 2, column = 1)
+        synopsis.grid(row = 3, column = 0)
+        synopsis_entry.grid(row = 3, column = 1)
+        runtime.grid(row = 4, column = 0)
+        runtime_entry.grid(row = 4, column = 1)
+        language.grid(row = 5, column = 0)
+        language_entry.grid(row = 5, column = 1)
+        subtitles.grid(row = 6, column = 0)
+        subtitles_entry.grid(row = 6, column = 1)
+        location.grid(row = 7, column = 0)
+        location_entry.grid(row = 7, column = 1)
+        genre.grid(row = 8, column = 0)
+        genre_entry.grid(row = 8, column = 1)
+        approve.grid(row =9, column = 1)
+        reject.grid(row=9, column = 0)
+  
+    def approveFilmBtn(self):
+        #Approve the films
+        print("approved")
+        try:
+            '''username is always root
+           password is Y7uzourl
+           host name is either the server name or the ip address where mysql is running
+           database name is film_review_db'
+            '''
+            conn = mysql.connector.connect(host='puff.mnstate.edu',
+                                       database='aries-qualey_film_review',
+                                       user='aries-qualey',
+                                       password='Y7uzourl')
+
+            if conn.is_connected():
+                cursor = conn.cursor()
+                cursor.execute("UPDATE application_table SET approved = 1 WHERE movieID = %s", (self.movieID,))
+                conn.commit()
+
+        except Error as e:
+            print(e)
+
+        finally:
+            if conn is not None and conn.is_connected():
+                conn.close()
+        
+    def rejectFilmBtn(self):
+        #reject the films
+        print("reject")
+        try:
+            '''username is always root
+           password is Y7uzourl
+           host name is either the server name or the ip address where mysql is running
+           database name is film_review_db'
+            '''
+            conn = mysql.connector.connect(host='puff.mnstate.edu',
+                                       database='aries-qualey_film_review',
+                                       user='aries-qualey',
+                                       password='Y7uzourl')
+
+            if conn.is_connected():
+                cursor = conn.cursor()
+                cursor.execute("UPDATE application_table SET approved = 2 WHERE movieID = %s", (self.movieID,))
+                conn.commit()
+
+        except Error as e:
+            print(e)
+
+        finally:
+            if conn is not None and conn.is_connected():
+                conn.close()
+        
+    
 
 class GuestView(Frame):
 
@@ -718,7 +832,7 @@ def getFilmOverview(curItem):
             result = logincursor.fetchone()
 
         data = []
-        data.append([result[1], result[3], result[4], 
+        data.append([result[0], result[1], result[3], result[4], 
                     result[5], result[6], result[7], result[8], result[9]])
         return data
 
