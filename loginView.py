@@ -771,10 +771,7 @@ def connect(userName, passWord):
             logincursor.execute("SELECT userTypeCode_c FROM login_table WHERE username_c = %s AND password_c = %s", (userName, passWord,))
             result = logincursor.fetchone()
 
-            if result[0] == 1:
-                #I'm not sure if we'll still be using the submitter account type but I left it in just in case
-                return "submitter"
-            elif result[0] == 2:
+            if result[0] == 2:
                 return "juror"
             elif result[0] == 3:
                 return "juryChair"
