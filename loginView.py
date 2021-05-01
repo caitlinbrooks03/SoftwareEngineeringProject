@@ -83,14 +83,12 @@ class LogInPage(Frame):
             juror = self.controller.get_frame("JurorDash")
             juror.populateTree()
             juror.tree.bind("<Double-1>", juror.getOverview)
+            juror.refresh()
+            juror.reviewCount.set(getReviewCount)
         elif view == "juryChair":
             self.controller.show_frame("JuryChairDash")
         elif view == "committeeChair":
             self.controller.show_frame("CommitteeChairDash")
-        
-
-        self.usernameTF.delete(0, END)
-        self.passwordTF.delete(0, END)
 
     def Guest(self):
 
@@ -129,8 +127,8 @@ class JurorDash(Frame):
         scroll = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=scroll.set)
 
-        self.tree.grid(column=0, row = 1)
-        scroll.grid(column =1, row = 1)
+        self.tree.grid(column=0, row = 2)
+        scroll.grid(column =1, row = 2)
         
         #To connect to the review screen
         self.mChoice = StringVar(self)
@@ -140,9 +138,15 @@ class JurorDash(Frame):
             titleList.append(movie[0])
         self.mChoice.set('Choose a movie to review')
         self.choiceMenu = OptionMenu(self, self.mChoice, *titleList)
-        self.choiceMenu.grid(column =2, row =1)
-        review.grid(column =3, row =1)
+        self.choiceMenu.grid(column =2, row =2)
+        review.grid(column =3, row =2)
         logOut.grid(column = 5, row = 5)
+
+        #For the review indicator
+        self.reviewCount = StringVar(self)
+        self.reveiwCount.set("")
+        self.indicator = Label(self, textvariable = self.reviewCount)
+        self.indicator.grid(column =0, row = 1)
 
     #Tree View -- Fill with data on the Films
     def populateTree(self):
@@ -216,6 +220,11 @@ class JurorDash(Frame):
         reviewF = self.controller.get_frame("ReviewView")
         reviewF.movie.set(self.mChoice.get())
         self.controller.show_frame("ReviewView")
+    
+    def refresh(self):
+        for i in self.tree.get_children():
+            self.tree.delete(i)  
+        self.populateTree()
         
         
 
@@ -757,6 +766,8 @@ class ReviewView(Frame):
                 self.reviewText.delete(1.0,END)
                 self.AwardVar.set('None')
                 self.controller.show_frame("JurorDash")
+                juror = self.controller.get_frame("JurorDash")
+                juror.refresh()
 
 
 def connect(userName, passWord):
@@ -820,12 +831,12 @@ def getDataTree(user):
                 movielist.append(row[0])
             logincursor.execute("SELECT movieName, director, runtime, approved, movieID FROM application_table")
             
-        
         for row in logincursor.fetchall():
-            if row[4] in movielist:
-                data.append([row[0],row[1],row[2],True])
-            else:
-                data.append([row[0],row[1],row[2],False])
+            if row[3]:
+                if row[4] in movielist:
+                    data.append([row[0],row[1],row[2],True])
+                else:
+                    data.append([row[0],row[1],row[2],False])
         return data        
 
     except Error as e:
@@ -835,7 +846,34 @@ def getDataTree(user):
         if conn is not None and conn.is_connected():
             conn.close()
 
+def getReviewCount(user):
+    try:
+        '''
+            username is always root
+            password is Y7uzourl
+            host name is either the server name or the ip address where mysql is running
+            database name is film_review_db'
+        '''
+        conn = mysql.connector.connect(host='puff.mnstate.edu',
+                                       database='aries-qualey_film_review',
+                                       user='aries-qualey',
+                                       password='Y7uzourl')
+        reviewCount = 0
+        movieTotal = 0
+        if conn.is_connected():
+            countcursor = conn.cursor()
+            countcursor.execute("SELECT COUNT(*) FROM application_table")
+            movieTotal = str(countcursor.fetchone()[0])
+            countcursor.execute("SELECT COUNT(*) FROM review_table WHERE username_c = %s", (user,))
+            reviewCount = str(countcursor.fetchone()[0])
+        finalStr = "Reviews completed: " + reviewCount + "/" + movieTotal
+        return finalStr
+    except Error as e:
+        print(e)
 
+    finally:
+        if conn is not None and conn.is_connected():
+            conn.close()
 
 def getFilmOverview(curItem):
     try:
